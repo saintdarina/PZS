@@ -30,3 +30,24 @@ Vyhodnocení úspěšnosti. Porovnání našeho výsledku a anotací jako tabulk
 Grafické výstupy: signál v čase, FFT spektrum, kepstrum, PCA scatter plot, rozhodovací hranice.
 '''
 
+'''
+Předzpracování signálu. 
+
+1. Odstranení DC složky
+Pokud signál nemá nenulový průměr, potřebujeme ho odečíst, aby nerušil další zpracování signálu.
+
+2. Normalizace amplitudy
+Normalizace zajišťuje srovnatelnost záznamů mezi subjekty. Normalizace na maximální amplitudu, RMS nebo jednotkovou energii.
+
+3. Výběr stabilní části signálu 
+Vynechat první a poslední část. Vybrat si střed signálu.
+
+4. Okenování
+Vynásobení signálu oknem, abychom snižili spektrální únik při frekvenční analýze.
+
+5. Filtrace
+High-pass filtr, případně band-pass, ale filtrace musí být jemná, aby se nezničí patologické znaky.
+
+6. Sjednocení delky signálu.
+
+'''

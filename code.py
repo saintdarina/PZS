@@ -51,3 +51,39 @@ High-pass filtr, případně band-pass, ale filtrace musí být jemná, aby se n
 6. Sjednocení delky signálu.
 
 '''
+
+'''
+Příznaky
+Časová oblast -> stabilita a energie hlasu
+Frekvenční oblast -> rozložení spektra a šum
+
+Patologický hlas typicky: je méně stabilní, má rozmazané spektrum, vyšší šumovou složku a narušenou periodicitu.
+
+Časová oblast:
+1. RMS hodnota - efektivní hodnota signálu. Patologické hlasy často kolísají a mají nižší efektivní energii.
+2. Variance / směrodatná odchylka. Nestabilní hlas má větší kolísání.
+3. Zero Crossing Rate. ZCR nepřímo popisuje míru šumovosti hlasu. Patologický hlas má víc náhodných složek.
+4. Krátkodobá energie. Průměr a rozptyl energie. 
+
+
+Frekvenční oblast (FFT):
+5. Dominantní frekvence - frekvence s maximální energií. Patologie bude se lišit od základní frekvenci hlásu.
+6. Spektrální centroid. Spektrální centroid vyjadřuje percepční jasnost hlasu.
+7. Spektrální šířka (bandwidth). Patologický hlas má šírší spektrum, více vyšších harmonických + šum.
+8. Poměr energie v pásmech. U patologického hlasu víc energie ve vyšších frekvencích.
+
+Kepstrální příznak:
+9. Maximální keprstální peak
+Kepstrální analýza umožňuje oddělit obálku spektra od periodicity hlasového signálu. Patologický hlas má peak nízký / rozmazaný.
+
+
+Výsledný vektor příznaků:
+[RMS,
+ variance,
+ ZCR,
+ dominant_freq,
+ centroid,
+ bandwidth,
+ band_energy_ratio,
+ cepstral_peak]
+'''

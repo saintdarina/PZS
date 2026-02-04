@@ -1,3 +1,178 @@
 # PZS
 
 First and second seminar works.
+
+První seminární prace
+První uloha
+Úloha má 4 hlavní části:
+
+1. Seznámení se s daty a jejich načtení
+2. Návrh vlastního algoritmu pro detekci R-vrcholů
+3. Výpočet tepové frekvence
+4. Ověření algoritmu na MIT-BIH databázi (validace)
+
+Načtení dat z PhysioNetu
+
+Předzpracování EKG signálu
+odstranění DC složky (pro jistotu)
+normalizace amplitudy (např. na ⟨-1, 1⟩)
+zvýraznění R-vrcholů (derivace / absolutní hodnota)
+
+Detekce R-vrcholů
+Krok 1 - zvýraznění peaků
+derivace signálu → R-vrchol má strmý náběh
+absolutní hodnota
+případně klouzavý průměr
+
+Krok 2 - prahování
+zvolíme adaptivní práh (např. procento maxima signálu)
+odstraníme malé špičky (šum)
+
+Krok 3 - detekce lokálních maxim
+bod je R-vrchol, pokud je větší než sousedé, je nad prahem
+
+Krok 4 - refrakterní perioda
+dva R-vrcholy nemohou být blíž než např. 200-300 ms (fyziologický limit srdce)
+
+Výpočet tepové frekvence (HR)
+Varianta A - z celého signálu
+HR = pocet R vrcholu/delka signalu v minutach 
+Varianta B - z RR intervalů
+spočítáme vzdálenosti mezi R-vrcholy, zprůměrujeme, HR = 60 / průměrný RR interval
+
+Zobrazení výsledků
+graf
+schéma algoritmu
+tabulka měření, počet R-vrcholů, HR
+
+Testování na MIT-BIH databázi
+
+
+Druhá seminární práce.
+
+Postup:
+
+Máme hlasové signály pacientů a jejich diagnozy.
+
+Naším úkolem je:
+
+1. načíst signál
+2. získat z něj vhodné příznaky
+3. podle nich signály automaticky rozdělit
+4. porovnat výsledek s realitou (anotacemi)
+
+Načtení dat bude probíhat pomocí WFDB. Výstupem bude pole vzorků signálu, vzorkovácí frekvence, diagnoza / třída.
+
+Předzpracování signálu. Odstranění DC složky, normalizace amplitudy, případně okenování.
+
+Ektrakce příznaků. 
+Časová oblast: RMS hodnota, energie signálu, variance, zero-crossing fate, jitter.
+Frekvenční oblast: FFT spektrum, spektrální centroid, šířka pasma, dominantní frekvence, poměr energie v pásmech.
+Kepstrální analýza: log(FFT), IFFT -> kepstrum, hledaní periodicity. 
+
+Klasifikace.
+Prahování, vzdálenost středu třídy, k-means, jednoduchý kNN, PCA -> vizualizace, oddělení: normální x patologický,
+typy patologií.
+
+Vyhodnocení úspěšnosti. Porovnání našeho výsledku a anotací jako tabulka.
+
+Grafické výstupy: signál v čase, FFT spektrum, kepstrum, PCA scatter plot, rozhodovací hranice.
+
+Předzpracování signálu. 
+
+1. Odstranení DC složky
+Pokud signál nemá nenulový průměr, potřebujeme ho odečíst, aby nerušil další zpracování signálu.
+
+2. Normalizace amplitudy
+Normalizace zajišťuje srovnatelnost záznamů mezi subjekty. Normalizace na maximální amplitudu, RMS nebo jednotkovou energii.
+
+3. Výběr stabilní části signálu 
+Vynechat první a poslední část. Vybrat si střed signálu.
+
+4. Okenování
+Vynásobení signálu oknem, abychom snižili spektrální únik při frekvenční analýze.
+
+5. Filtrace
+High-pass filtr, případně band-pass, ale filtrace musí být jemná, aby se nezničí patologické znaky.
+
+6. Sjednocení delky signálu.
+
+Příznaky
+Časová oblast -> stabilita a energie hlasu
+Frekvenční oblast -> rozložení spektra a šum
+
+Patologický hlas typicky: je méně stabilní, má rozmazané spektrum, vyšší šumovou složku a narušenou periodicitu.
+
+Časová oblast:
+1. RMS hodnota - efektivní hodnota signálu. Patologické hlasy často kolísají a mají nižší efektivní energii.
+2. Variance / směrodatná odchylka. Nestabilní hlas má větší kolísání.
+3. Zero Crossing Rate. ZCR nepřímo popisuje míru šumovosti hlasu. Patologický hlas má víc náhodných složek.
+4. Krátkodobá energie. Průměr a rozptyl energie. 
+
+
+Frekvenční oblast (FFT):
+5. Dominantní frekvence - frekvence s maximální energií. Patologie bude se lišit od základní frekvenci hlásu.
+6. Spektrální centroid. Spektrální centroid vyjadřuje percepční jasnost hlasu.
+7. Spektrální šířka (bandwidth). Patologický hlas má šírší spektrum, více vyšších harmonických + šum.
+8. Poměr energie v pásmech. U patologického hlasu víc energie ve vyšších frekvencích.
+
+Kepstrální příznak:
+9. Maximální keprstální peak
+Kepstrální analýza umožňuje oddělit obálku spektra od periodicity hlasového signálu. Patologický hlas má peak nízký / rozmazaný.
+
+
+Výsledný vektor příznaků:
+[RMS,
+ variance,
+ ZCR,
+ dominant_freq,
+ centroid,
+ bandwidth,
+ band_energy_ratio,
+ cepstral_peak]
+
+
+ 
+Porovnávat každý hlasový záznam s referenčním (normálním) hlasem pomocí příznaků získaných z Fourierovy a kepstrální analýzy.
+
+1. Rozdělení dat podle pohlaví. V každé skupině zvlášť budou se počítat normální a patologické hlasy.
+
+2. Příznaky, které budeme využivat pro kategorizaci:
+A) Poměr spektrální energie (FFT)
+Výpočet FFT signálu, vykonové spektrum, integrace energie v pásmech.
+R_E = E_low / E_high
+Zdravý hlas -> vysoké R_E, patologický -> nízké R_E.
+
+B) Spektrální šířka (FFT)
+Rozptyl frekvencí kolem spektrálního centroidu. Zdravý hlas -> úzké spektrum, patologický -> široké spektrum.
+
+C) Výška kepstrálního maxima
+Výpočet FFT, log(|FFT|), IFFT -> kepstrum, maximum v oblasti odpovídající 80-300 Hz. 
+Zdravý hlas -> výrazný peak, patologický → slabý peak 
+
+3. Vytvoření normy
+Pro každé pohlaví vzít jen normální hlasy a spočítat průměr a směrodatnou odchylku příznaků. To bude norma zdravého hlasu.
+
+4. Porovnání (norma + vzdálenost)
+Normalizovaná odchylka (z-score). 
+Normalizovaná vzdálenost. Pro každý příznak: d_i = |x_i - μ_i| / σ_i
+Celková vzdálenost. Například: D = d_RE + d_Cmax + d_bandwidth, nebo průměr.
+
+5. Rozhodovací pravidlo
+1. stupeň: normální x patologický
+pokud D > T → patologický, jinak → normální. Práh T je zvolen jako například T = 2 nebo 95 % normálních hlasů.
+2. stupeň: typ patologie
+Z hlaviček databáze si vybrat 2-4 hlavní skupiny patologií, zbytek jako ostatní. 
+Mapování patologií.
+1) Patologie s výraznou šumovostí
+Nízký poměr E_low / E_high, vysoká spektrální šířka, vyšší ZCR. 
+pokud C_max < T1 → periodická porucha
+2) Patologie s porušenou periodicitou
+Velmi nízké C_max, rozmazané kepstrum, nejasná základní perioda. 
+pokud (R_E < T2) a (bandwidth > T3) → šumová patologie
+3) Patologie s posunem spektrální obálky
+Změna centroidu, jiný poměr energií v pásmech.
+pokud centroid < T4 nebo centroid > T5 → rezonanční změna
+4) Jiné patologie jsou ostatní.
+Prahy nastavit tak: vezmeš patologické záznamy daného typu, spočítáš průměry příznaků, nastavíš prahy mezi třídami
+

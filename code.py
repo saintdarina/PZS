@@ -87,3 +87,51 @@ Výsledný vektor příznaků:
  band_energy_ratio,
  cepstral_peak]
 '''
+
+'''
+
+Porovnávat každý hlasový záznam s referenčním (normálním) hlasem pomocí příznaků získaných z Fourierovy a kepstrální analýzy.
+
+1. Rozdělení dat podle pohlaví. V každé skupině zvlášť budou se počítat normální a patologické hlasy.
+
+2. Příznaky, které budeme využivat pro kategorizaci:
+A) Poměr spektrální energie (FFT)
+Výpočet FFT signálu, vykonové spektrum, integrace energie v pásmech.
+R_E = E_low / E_high
+Zdravý hlas -> vysoké R_E, patologický -> nízké R_E.
+
+B) Spektrální šířka (FFT)
+Rozptyl frekvencí kolem spektrálního centroidu. Zdravý hlas -> úzké spektrum, patologický -> široké spektrum.
+
+C) Výška kepstrálního maxima
+Výpočet FFT, log(|FFT|), IFFT -> kepstrum, maximum v oblasti odpovídající 80-300 Hz. 
+Zdravý hlas -> výrazný peak, patologický → slabý peak 
+
+3. Vytvoření normy
+Pro každé pohlaví vzít jen normální hlasy a spočítat průměr a směrodatnou odchylku příznaků. To bude norma zdravého hlasu.
+
+4. Porovnání (norma + vzdálenost)
+Normalizovaná odchylka (z-score). 
+Normalizovaná vzdálenost. Pro každý příznak: d_i = |x_i - μ_i| / σ_i
+Celková vzdálenost. Například: D = d_RE + d_Cmax + d_bandwidth, nebo průměr.
+
+5. Rozhodovací pravidlo
+1. stupeň: normální x patologický
+pokud D > T → patologický, jinak → normální. Práh T je zvolen jako například T = 2 nebo 95 % normálních hlasů.
+2. stupeň: typ patologie
+Z hlaviček databáze si vybrat 2-4 hlavní skupiny patologií, zbytek jako ostatní. 
+Mapování patologií.
+1) Patologie s výraznou šumovostí
+Nízký poměr E_low / E_high, vysoká spektrální šířka, vyšší ZCR. 
+pokud C_max < T1 → periodická porucha
+2) Patologie s porušenou periodicitou
+Velmi nízké C_max, rozmazané kepstrum, nejasná základní perioda. 
+pokud (R_E < T2) a (bandwidth > T3) → šumová patologie
+3) Patologie s posunem spektrální obálky
+Změna centroidu, jiný poměr energií v pásmech.
+pokud centroid < T4 nebo centroid > T5 → rezonanční změna
+4) Jiné patologie jsou ostatní.
+Prahy nastavit tak: vezmeš patologické záznamy daného typu, spočítáš průměry příznaků, nastavíš prahy mezi třídami
+
+
+'''
